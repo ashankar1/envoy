@@ -28,6 +28,7 @@ constexpr absl::string_view Host = "host";
 constexpr absl::string_view Scheme = "scheme";
 constexpr absl::string_view Method = "method";
 constexpr absl::string_view Referer = "referer";
+constexpr absl::string_view Mango = "mango";
 constexpr absl::string_view Headers = "headers";
 constexpr absl::string_view Time = "time";
 constexpr absl::string_view ID = "id";
@@ -36,6 +37,7 @@ constexpr absl::string_view Size = "size";
 constexpr absl::string_view TotalSize = "total_size";
 constexpr absl::string_view Duration = "duration";
 constexpr absl::string_view Protocol = "protocol";
+constexpr absl::string_view Peach = "peach";
 
 // Symbols for traversing the response properties
 constexpr absl::string_view Response = "response";
@@ -44,6 +46,7 @@ constexpr absl::string_view CodeDetails = "code_details";
 constexpr absl::string_view Trailers = "trailers";
 constexpr absl::string_view Flags = "flags";
 constexpr absl::string_view GrpcStatus = "grpc_status";
+//constexpr absl::string_view Grapefruit = "grapefruit";
 
 // Per-request or per-connection metadata
 constexpr absl::string_view Metadata = "metadata";

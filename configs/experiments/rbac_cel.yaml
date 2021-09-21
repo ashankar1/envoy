@@ -32,6 +32,11 @@ static_resources:
                   prefix: "/"
                 route:
                   cluster: admin_cluster
+              request_headers_to_add:
+                - header:
+                    key: server
+                    value: envoy
+                  append: true
           http_filters:
 #          - name: rbac-deny-admin-clusters-endpoint
 #            typed_config:
@@ -82,40 +87,14 @@ static_resources:
 #                    - any: true
 #                    principals:
 #                    - any: true
-#          - name: rbac-deny-if-header-server-name-is-envoy
-#            typed_config:
-#              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-#              rules:
-#                action: DENY
-#                policies:
-#                  "policy-deny-if-header-server-name-is-envoy":
-#                    # deny if request.headers[server] == "envoy"
-#                    condition:
-#                      call_expr:
-#                        function: _==_
-#                        args:
-#                        - select_expr:
-#                            operand:
-#                              select_expr:
-#                                operand:
-#                                  ident_expr:
-#                                    name: request
-#                                field: headers
-#                            field: server
-#                        - const_expr:
-#                            string_value: envoy
-#                    permissions:
-#                    - any: true
-#                    principals:
-#                    - any: true
-          - name: rbac-deny-if-header-user-agent-is-chrome
+          - name: rbac-deny-if-header-server-name-is-envoy
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
               rules:
                 action: DENY
                 policies:
-                  "policy-deny-if-header-user-agent-is-chrome":
-                    # deny if request.headers[user-agent].contains("Chrome")
+                  "policy-deny-if-header-server-name-is-envoy":
+                    # deny if request.headers[server] == "envoy"
                     condition:
                       call_expr:
                         function: contains
@@ -127,13 +106,39 @@ static_resources:
                                   ident_expr:
                                     name: request
                                 field: headers
-                            field: user-agent
+                            field: server
                         - const_expr:
-                            string_value: Chrome
+                            string_value: envoy
                     permissions:
                     - any: true
                     principals:
                     - any: true
+#          - name: rbac-deny-if-header-user-agent-is-chrome
+#            typed_config:
+#              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
+#              rules:
+#                action: DENY
+#                policies:
+#                  "policy-deny-if-header-user-agent-is-chrome":
+#                    # deny if request.headers[user-agent].contains("Chrome")
+#                    condition:
+#                      call_expr:
+#                        function: contains
+#                        args:
+#                        - select_expr:
+#                            operand:
+#                              select_expr:
+#                                operand:
+#                                  ident_expr:
+#                                    name: request
+#                                field: headers
+#                            field: user-agent
+#                        - const_expr:
+#                            string_value: Chrome
+#                    permissions:
+#                    - any: true
+#                    principals:
+#                    - any: true
 #          - name: rbac-deny-if-header-user-agent-is-curl
 #            typed_config:
 #              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC

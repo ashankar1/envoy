@@ -80,6 +80,7 @@ public:
   const LowerCaseString Pragma{"pragma"};
   const LowerCaseString Referer{"referer"};
   const LowerCaseString Vary{"vary"};
+  const LowerCaseString Mango{"mango"};
 
   struct {
     const std::string Gzip{"gzip"};
@@ -214,6 +215,7 @@ public:
   const LowerCaseString TE{"te"};
   const LowerCaseString Upgrade{"upgrade"};
   const LowerCaseString UserAgent{"user-agent"};
+  const LowerCaseString Peach{"peach"};
   const LowerCaseString Via{"via"};
   const LowerCaseString WWWAuthenticate{"www-authenticate"};
   const LowerCaseString XContentTypeOptions{"x-content-type-options"};

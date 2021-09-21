@@ -312,7 +312,8 @@ private:
   HEADER_FUNC(Protocol)                                                                            \
   HEADER_FUNC(Scheme)                                                                              \
   HEADER_FUNC(TE)                                                                                  \
-  HEADER_FUNC(UserAgent)
+  HEADER_FUNC(UserAgent)                                                                           \
+  HEADER_FUNC(Peach)
 
 #define INLINE_REQ_NUMERIC_HEADERS(HEADER_FUNC)                                                    \
   HEADER_FUNC(EnvoyExpectedRequestTimeoutMs)                                                       \
