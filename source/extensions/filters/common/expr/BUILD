@@ -11,14 +11,21 @@ envoy_extension_package()
 envoy_cc_library(
     name = "evaluator_lib",
     srcs = ["evaluator.cc"],
-    hdrs = ["evaluator.h"],
+    hdrs = [
+        "evaluator.h",
+    ],
+    copts = [
+        "-Wno-unused-parameter",
+    ],
     deps = [
         ":context_lib",
+        ":custom_expr_lib",
         "//source/common/http:utility_lib",
         "//source/common/protobuf",
         "@com_google_cel_cpp//eval/public:builtin_func_registrar",
         "@com_google_cel_cpp//eval/public:cel_expr_builder_factory",
         "@com_google_cel_cpp//eval/public:cel_expression",
+        "@com_google_cel_cpp//eval/public:cel_function",
         "@com_google_cel_cpp//eval/public:cel_value",
     ],
 )
@@ -26,13 +33,19 @@ envoy_cc_library(
 envoy_cc_library(
     name = "context_lib",
     srcs = ["context.cc"],
-    hdrs = ["context.h"],
+    hdrs = [
+        "context.h",
+    ],
+    copts = [
+        "-Wno-unused-parameter",
+    ],
     deps = [
         ":cel_state_lib",
         "//source/common/grpc:common_lib",
         "//source/common/http:header_map_lib",
         "//source/common/http:utility_lib",
         "//source/common/stream_info:utility_lib",
+        "@com_google_cel_cpp//eval/public:cel_function",
         "@com_google_cel_cpp//eval/public:cel_value",
         "@com_google_cel_cpp//eval/public:cel_value_producer",
         "@com_google_cel_cpp//eval/public/structs:cel_proto_wrapper",
@@ -57,5 +70,25 @@ envoy_cc_library(
         "@com_google_cel_cpp//eval/public:cel_value",
         "@com_google_cel_cpp//eval/public/structs:cel_proto_wrapper",
         "@com_google_cel_cpp//tools:flatbuffers_backed_impl",
+    ],
+)
+
+envoy_cc_library(
+    name = "custom_expr_lib",
+    srcs = ["custom_expr.cc"],
+    hdrs = [
+        "custom_expr.h",
+    ],
+    copts = [
+        "-Wno-unused-parameter",
+    ],
+    deps = [
+        "//source/common/http:utility_lib",
+        "//source/common/protobuf",
+        "@com_google_cel_cpp//eval/public:builtin_func_registrar",
+        "@com_google_cel_cpp//eval/public:cel_expr_builder_factory",
+        "@com_google_cel_cpp//eval/public:cel_expression",
+        "@com_google_cel_cpp//eval/public:cel_function",
+        "@com_google_cel_cpp//eval/public:cel_value",
     ],
 )

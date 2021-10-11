@@ -5,6 +5,8 @@
 #include "eval/public/builtin_func_registrar.h"
 #include "eval/public/cel_expr_builder_factory.h"
 
+#include "source/extensions/filters/common/expr/custom_expr.h"
+
 namespace Envoy {
 namespace Extensions {
 namespace Filters {
@@ -14,7 +16,9 @@ namespace Expr {
 ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamInfo& info,
                                const Http::RequestHeaderMap* request_headers,
                                const Http::ResponseHeaderMap* response_headers,
-                               const Http::ResponseTrailerMap* response_trailers) {
+                               const Http::ResponseTrailerMap* response_trailers,
+                               const CustomVocabularyInterface* custom_vocab
+                               ) {
   auto activation = std::make_unique<Activation>();
   activation->InsertValueProducer(Request,
                                   std::make_unique<RequestWrapper>(arena, request_headers, info));
@@ -28,8 +32,14 @@ ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamI
                                   std::make_unique<MetadataProducer>(info.dynamicMetadata()));
   activation->InsertValueProducer(FilterState,
                                   std::make_unique<FilterStateWrapper>(info.filterState()));
+  if (custom_vocab) {
+    custom_vocab->FillActivation(activation.get());
+  }
+
   return activation;
 }
+
+
 
 BuilderPtr createBuilder(Protobuf::Arena* arena) {
   google::api::expr::runtime::InterpreterOptions options;
@@ -55,6 +65,26 @@ BuilderPtr createBuilder(Protobuf::Arena* arena) {
     throw CelException(
         absl::StrCat("failed to register built-in functions: ", register_status.message()));
   }
+
+  CelFunctionRegistry *registry = builder->GetRegistry();
+  absl::Status registrationStatus = registry->RegisterLazyFunction(ConstCelFunction::CreateDescriptor("constFunc2"));
+
+//  CelFunctionRegistry *registry = builder->GetRegistry();
+//
+    auto status = google::api::expr::runtime::FunctionAdapter<CelValue, int64_t>::
+      CreateAndRegister(
+          "constFunc", false,
+          [](Protobuf::Arena* arena, int64_t i)
+              -> CelValue { return GetConstValue(arena, i); },
+          registry);
+
+//  google::api::expr::runtime::FunctionAdapter<CelValue, const Protobuf::Message*>::Create(
+//    "constFunc3", false,
+//    [](Protobuf::Arena* arena,
+//        const Protobuf::Message* message) -> CelValue {
+//    return CelValue::CreateInt64(99);
+//    });
+
   return builder;
 }
 
@@ -73,8 +103,9 @@ absl::optional<CelValue> evaluate(const Expression& expr, Protobuf::Arena& arena
                                   const Http::RequestHeaderMap* request_headers,
                                   const Http::ResponseHeaderMap* response_headers,
                                   const Http::ResponseTrailerMap* response_trailers) {
+  CustomVocabularyInterface custom_vocabulary_interface;
   auto activation =
-      createActivation(arena, info, request_headers, response_headers, response_trailers);
+      createActivation(arena, info, request_headers, response_headers, response_trailers, &custom_vocabulary_interface);
   auto eval_status = expr.Evaluate(*activation, &arena);
   if (!eval_status.ok()) {
     return {};

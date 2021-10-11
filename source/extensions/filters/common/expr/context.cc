@@ -71,6 +71,20 @@ absl::optional<CelValue> extractSslInfo(const Ssl::ConnectionInfo& ssl_info,
 
 } // namespace
 
+absl::optional<CelValue> CustomVocabularyWrapper::operator[](CelValue key) const {
+  if (!key.IsString()) {
+    return {};
+  }
+  auto value = key.StringOrDie().value();
+  if (value == "team") {
+    std::string name("swg");
+    std::cout << "custom vocabulary team!  swg!" << std::endl;
+    return CelValue::CreateString(&name);
+  }
+
+  return {};
+}
+
 absl::optional<CelValue> RequestWrapper::operator[](CelValue key) const {
   if (!key.IsString()) {
     return {};
@@ -135,6 +149,10 @@ absl::optional<CelValue> RequestWrapper::operator[](CelValue key) const {
       return convertHeaderEntry(headers_.value_->Peach());
     } else if (value == Mango) {
       return convertHeaderEntry(headers_.value_->getInline(mango_handle.handle()));
+    } else if (value == "team") {
+      std::string name("swg");
+      std::cout << "request header team: swg" << std::endl;
+      return CelValue::CreateString(&name);
     }
   }
   return {};
