@@ -2,6 +2,7 @@
 
 #include "envoy/extensions/filters/http/rbac/v3/rbac.pb.h"
 #include "envoy/extensions/filters/http/rbac/v3/rbac.pb.validate.h"
+#include "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
 
 #include "source/extensions/filters/http/common/factory_base.h"
 

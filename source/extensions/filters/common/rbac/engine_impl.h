@@ -1,6 +1,7 @@
 #pragma once
 
 #include "envoy/config/rbac/v3/rbac.pb.h"
+#include "envoy/extensions/filters/http/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
 
 #include "source/extensions/filters/common/rbac/engine.h"
 #include "source/extensions/filters/common/rbac/matchers.h"
@@ -28,6 +29,7 @@ enum class EnforcementMode { Enforced, Shadow };
 class RoleBasedAccessControlEngineImpl : public RoleBasedAccessControlEngine, NonCopyable {
 public:
   RoleBasedAccessControlEngineImpl(const envoy::config::rbac::v3::RBAC& rules,
+                                   const envoy::config::rbac::v3::RBAC& custom_vocab_config,
                                    const EnforcementMode mode = EnforcementMode::Enforced);
 
   bool handleAction(const Network::Connection& connection,
@@ -47,6 +49,7 @@ private:
   const EnforcementMode mode_;
 
   std::map<std::string, std::unique_ptr<PolicyMatcher>> policies_;
+  std::unique_ptr<CustomVocabularyInterface> custom_vocabulary_interface_;
 
   Protobuf::Arena constant_arena_;
   Expr::BuilderPtr builder_;

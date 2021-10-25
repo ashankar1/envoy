@@ -27,13 +27,7 @@ class ConstCelFunction : public CelFunction {
   }
 
   absl::Status Evaluate(absl::Span<const CelValue> args, CelValue* output,
-                        Protobuf::Arena* arena) const override {
-    args.size();
-    arena->SpaceUsed();
-    *output = CelValue::CreateInt64(99);
-    std::cout << "******** ConstCelFunction Lazy" << std::endl;
-    return absl::OkStatus();
-  }
+                        Protobuf::Arena* arena) const override;
 };
 
 CelValue GetConstValue(Protobuf::Arena* arena, int64_t i);

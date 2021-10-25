@@ -136,36 +136,6 @@ protected:
   ProtobufWkt::Arena* arena_;
 };
 
-class CustomVocabularyMap {
- public:
-  CustomVocabularyMap();
-
-  int64_t GetValue() {
-    return 2;
-  }
-
-  ~CustomVocabularyMap();
-};
-
-//CustomVocabularyMap custom_vocab_map;
-
-class CustomVocabularyWrapper : public BaseWrapper {
-public:
-  CustomVocabularyWrapper(
-//      Protobuf::Arena& arena,
-//                 const CustomVocabularyMap* headers,
-//                 const StreamInfo::StreamInfo& info
-                 )
-       {}
-  absl::optional<CelValue> operator[](CelValue key) const override;
-//  : info_(info)
-//headers_(arena, headers),
-
-private:
-//  const HeadersWrapper<CustomVocabularyMap> headers_;
-//  const StreamInfo::StreamInfo& info_;
-};
-
 class RequestWrapper : public BaseWrapper {
 public:
   RequestWrapper(Protobuf::Arena& arena, const Http::RequestHeaderMap* headers,

@@ -1,6 +1,7 @@
 #include "source/extensions/filters/common/rbac/engine_impl.h"
 
 #include "envoy/config/rbac/v3/rbac.pb.h"
+#include "envoy/extensions/filters/http/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
 
 #include "source/common/http/header_map_impl.h"
 
@@ -11,12 +12,19 @@ namespace Common {
 namespace RBAC {
 
 RoleBasedAccessControlEngineImpl::RoleBasedAccessControlEngineImpl(
-    const envoy::config::rbac::v3::RBAC& rules, const EnforcementMode mode)
+    const envoy::config::rbac::v3::RBAC& rules,
+    const envoy::config::rbac::v3::RBAC& custom_vocab_config,
+    const EnforcementMode mode)
     : action_(rules.action()), mode_(mode) {
   // guard expression builder by presence of a condition in policies
+
+  auto& factory =
+      Config::Utility::getAndCheckFactory<CustomVocabularyInterfaceFactory>(custom_vocab_config.config());
+  custom_vocabulary_interface_ = factory.createInterface(custom_vocab_config);
+
   for (const auto& policy : rules.policies()) {
     if (policy.second.has_condition()) {
-      builder_ = Expr::createBuilder(&constant_arena_);
+      builder_ = Expr::createBuilder(&constant_arena_, custom_vocabulary_interface_);
       break;
     }
   }
@@ -66,7 +74,7 @@ bool RoleBasedAccessControlEngineImpl::checkPolicyMatch(
   bool matched = false;
 
   for (const auto& policy : policies_) {
-    if (policy.second->matches(connection, headers, info)) {
+    if (policy.second->matches(connection, headers, info, custom_vocabulary_interface_.get())) {
       matched = true;
       if (effective_policy_id != nullptr) {
         *effective_policy_id = policy.first;

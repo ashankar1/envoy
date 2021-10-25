@@ -77,11 +77,34 @@ static_resources:
 #                                name: custom
 #                            field: team
 #                        - const_expr:
-#                            string_value: swg
+#                            string_value: swg2
 #                    permissions:
 #                    - any: true
 #                    principals:
 #                    - any: true
+          - name: rbac-deny-if-team-is-swg
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
+              rules:
+                action: DENY
+                policies:
+                  "policy-rbac-deny-if-team-is-swg":
+                    # deny if custom[ip].equals("127.0.0.1")
+                    condition:
+                      call_expr:
+                        function: _==_
+                        args:
+                        - select_expr:
+                            operand:
+                              ident_expr:
+                                name: custom
+                            field: ip
+                        - const_expr:
+                            string_value: 127.0.0.1
+                    permissions:
+                    - any: true
+                    principals:
+                    - any: true
           - name: rbac-deny-if-team-is-swg
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
@@ -97,7 +120,7 @@ static_resources:
                         - call_expr:
                             function: constFunc2
                         - const_expr:
-                            int64_value: 99
+                            int64_value: 98
                     permissions:
                     - any: true
                     principals:

@@ -3,6 +3,7 @@ syntax = "proto3";
 package envoy.extensions.filters.http.rbac.v3;
 
 import "envoy/config/rbac/v3/rbac.proto";
+import "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.proto";
 
 import "udpa/annotations/status.proto";
 import "udpa/annotations/versioning.proto";
@@ -35,6 +36,9 @@ message RBAC {
   // This is useful to distinguish the stat when there are more than 1 RBAC filter configured with
   // shadow rules.
   string shadow_rules_stat_prefix = 3;
+
+//  extensions.filters.common.expr.custom_vocabulary.v3
+  custom_vocabulary.v3.CustomVocabularyInterfaceConfig custom_vocab_config = 4;
 }
 
 message RBACPerRoute {
