@@ -10,7 +10,7 @@
 #include "eval/public/cel_value.h"
 #include "eval/public/cel_function_adapter.h"
 
-#include "source/extensions/filters/common/expr/custom_expr.h"
+#include "source/extensions/filters/common/expr/custom_functions.h"
 
 namespace Envoy {
 namespace Extensions {
@@ -29,19 +29,13 @@ using CelFunctionRegistry = google::api::expr::runtime::CelFunctionRegistry;
 using CelValue = google::api::expr::runtime::CelValue;
 using ConstCelFunction = Envoy::Extensions::Filters::Common::Expr::ConstCelFunction;
 
-class CustomVocabularyInterface {
- public:
-  void FillActivation(Activation *activation) const {
-    activation->InsertValueProducer("custom",
-                                      std::make_unique<CustomVocabularyWrapper>());
-    auto func_name = absl::string_view("constFunc2");
-    absl::Status status = activation->InsertFunction(std::make_unique<ConstCelFunction>(func_name));
-//const StreamInfo::StreamInfo& info
-    //  , custom_vocab_map
-//Protobuf::Arena& arena
-//info
-  }
+// Thrown when there is an CEL library error.
+class CelException : public EnvoyException {
+public:
+  CelException(const std::string& what) : EnvoyException(what) {}
 };
+
+
 
 // Creates an activation providing the common context attributes.
 // The activation lazily creates wrappers during an evaluation using the evaluation arena.
@@ -49,12 +43,12 @@ ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamI
                                const Http::RequestHeaderMap* request_headers,
                                const Http::ResponseHeaderMap* response_headers,
                                const Http::ResponseTrailerMap* response_trailers,
-                               const CustomVocabularyInterface* custom_vocab);
+                               const CustomVocabularyInterface* custom_vocabulary_interface);
 
 // Creates an expression builder. The optional arena is used to enable constant folding
 // for intermediate evaluation results.
 // Throws an exception if fails to construct an expression builder.
-BuilderPtr createBuilder(Protobuf::Arena* arena);
+BuilderPtr createBuilder(Protobuf::Arena* arena, const CustomVocabularyInterface* custom_vocabulary_interface);
 
 // Creates an interpretable expression from a protobuf representation.
 // Throws an exception if fails to construct a runtime expression.
@@ -66,23 +60,17 @@ absl::optional<CelValue> evaluate(const Expression& expr, Protobuf::Arena& arena
                                   const StreamInfo::StreamInfo& info,
                                   const Http::RequestHeaderMap* request_headers,
                                   const Http::ResponseHeaderMap* response_headers,
-                                  const Http::ResponseTrailerMap* response_trailers);
+                                  const Http::ResponseTrailerMap* response_trailers,
+                                  const CustomVocabularyInterface* custom_vocabulary_interface);
 
 // Evaluates an expression and returns true if the expression evaluates to "true".
 // Returns false if the expression fails to evaluate.
 bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
-             const Http::RequestHeaderMap& headers);
+             const Http::RequestHeaderMap& headers,
+             const CustomVocabularyInterface* custom_vocabulary_interface);
 
 // Returns a string for a CelValue.
 std::string print(CelValue value);
-
-// Thrown when there is an CEL library error.
-class CelException : public EnvoyException {
-public:
-  CelException(const std::string& what) : EnvoyException(what) {}
-};
-
-
 
 } // namespace Expr
 } // namespace Common

@@ -704,3 +704,8 @@ envoy.key_value.file_based:
   - envoy.common.key_value
   security_posture: data_plane_agnostic
   status: alpha
+envoy.filters.common.expr.custom_vocabulary:
+  categories:
+  - envoy.filters.common.expr.custom_vocabulary
+  security_posture: data_plane_agnostic
+  status: alpha

@@ -71,19 +71,6 @@ absl::optional<CelValue> extractSslInfo(const Ssl::ConnectionInfo& ssl_info,
 
 } // namespace
 
-absl::optional<CelValue> CustomVocabularyWrapper::operator[](CelValue key) const {
-  if (!key.IsString()) {
-    return {};
-  }
-  auto value = key.StringOrDie().value();
-  if (value == "team") {
-    std::string name("swg");
-    std::cout << "custom vocabulary team!  swg!" << std::endl;
-    return CelValue::CreateString(&name);
-  }
-
-  return {};
-}
 
 absl::optional<CelValue> RequestWrapper::operator[](CelValue key) const {
   if (!key.IsString()) {

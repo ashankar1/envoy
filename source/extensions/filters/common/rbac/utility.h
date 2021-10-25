@@ -40,7 +40,7 @@ generateStats(const std::string& prefix, const std::string& shadow_prefix, Stats
 template <class ConfigType>
 std::unique_ptr<RoleBasedAccessControlEngineImpl> createEngine(const ConfigType& config) {
   return config.has_rules() ? std::make_unique<RoleBasedAccessControlEngineImpl>(
-                                  config.rules(), EnforcementMode::Enforced)
+                                  config.rules(), config.custom_vocab_config(), EnforcementMode::Enforced)
                             : nullptr;
 }
 

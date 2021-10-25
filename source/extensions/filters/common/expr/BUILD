@@ -1,5 +1,6 @@
 load(
     "//bazel:envoy_build_system.bzl",
+    "envoy_cc_extension",
     "envoy_cc_library",
     "envoy_extension_package",
 )
@@ -19,7 +20,7 @@ envoy_cc_library(
     ],
     deps = [
         ":context_lib",
-        ":custom_expr_lib",
+        ":custom_vocabulary_interface_lib",
         "//source/common/http:utility_lib",
         "//source/common/protobuf",
         "@com_google_cel_cpp//eval/public:builtin_func_registrar",
@@ -74,15 +75,37 @@ envoy_cc_library(
 )
 
 envoy_cc_library(
-    name = "custom_expr_lib",
-    srcs = ["custom_expr.cc"],
+    name = "custom_functions_lib",
+    srcs = ["custom_functions.cc"],
     hdrs = [
-        "custom_expr.h",
+        "custom_functions.h",
     ],
     copts = [
         "-Wno-unused-parameter",
     ],
     deps = [
+        "//source/common/http:utility_lib",
+        "//source/common/protobuf",
+        "@com_google_cel_cpp//eval/public:builtin_func_registrar",
+        "@com_google_cel_cpp//eval/public:cel_expr_builder_factory",
+        "@com_google_cel_cpp//eval/public:cel_expression",
+        "@com_google_cel_cpp//eval/public:cel_function",
+        "@com_google_cel_cpp//eval/public:cel_value",
+    ],
+)
+
+envoy_cc_extension(
+    name = "custom_vocabulary_interface_lib",
+    srcs = ["custom_vocabulary_interface.cc"],
+    hdrs = [
+        "custom_vocabulary_interface.h",
+    ],
+    copts = [
+        "-Wno-unused-parameter",
+    ],
+    deps = [
+        ":custom_functions_lib",
+        ":context_lib",
         "//source/common/http:utility_lib",
         "//source/common/protobuf",
         "@com_google_cel_cpp//eval/public:builtin_func_registrar",

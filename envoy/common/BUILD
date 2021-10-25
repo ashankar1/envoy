@@ -99,3 +99,11 @@ envoy_cc_library(
     name = "scope_tracker_interface",
     hdrs = ["scope_tracker.h"],
 )
+
+envoy_cc_library(
+    name = "custom_vocabulary_interface",
+    hdrs = ["custom_vocabulary_interface.h"],
+    deps = [
+        "//envoy/registry",
+    ],
+)
