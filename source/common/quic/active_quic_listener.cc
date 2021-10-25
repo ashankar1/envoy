@@ -55,10 +55,7 @@ ActiveQuicListener::ActiveQuicListener(
       kernel_worker_routing_(kernel_worker_routing),
       packets_to_read_to_connection_count_ratio_(packets_to_read_to_connection_count_ratio),
       crypto_server_stream_factory_(crypto_server_stream_factory) {
-  // This flag fix a QUICHE issue which may crash Envoy during connection close.
-  SetQuicReloadableFlag(quic_single_ack_in_packet2, true);
-  // Do not include 32-byte per-entry overhead while counting header size.
-  quiche::FlagRegistry::getInstance();
+  ASSERT(GetQuicReloadableFlag(quic_single_ack_in_packet2));
   ASSERT(!GetQuicFlag(FLAGS_quic_header_size_limit_includes_overhead));
 
   if (Runtime::LoaderSingleton::getExisting()) {
@@ -219,6 +216,24 @@ size_t ActiveQuicListener::numPacketsExpectedPerEventLoop() const {
   // Expect each session to read packets_to_read_to_connection_count_ratio_ number of packets in
   // this read event.
   return quic_dispatcher_->NumSessions() * packets_to_read_to_connection_count_ratio_;
+}
+
+void ActiveQuicListener::updateListenerConfig(Network::ListenerConfig& config) {
+  config_ = &config;
+  dynamic_cast<EnvoyQuicProofSource*>(crypto_config_->proof_source())
+      ->updateFilterChainManager(config.filterChainManager());
+  quic_dispatcher_->updateListenerConfig(config);
+}
+
+void ActiveQuicListener::onFilterChainDraining(
+    const std::list<const Network::FilterChain*>& draining_filter_chains) {
+  for (auto* filter_chain : draining_filter_chains) {
+    closeConnectionsWithFilterChain(filter_chain);
+  }
+}
+
+void ActiveQuicListener::closeConnectionsWithFilterChain(const Network::FilterChain* filter_chain) {
+  quic_dispatcher_->closeConnectionsWithFilterChain(filter_chain);
 }
 
 ActiveQuicListenerFactory::ActiveQuicListenerFactory(

@@ -676,17 +676,19 @@ public:
   // other contexts taken from TransportSocketFactoryContext.
   FactoryContextImpl(Stats::Scope& stats_scope, Envoy::Runtime::Loader& runtime,
                      Server::Configuration::TransportSocketFactoryContext& c)
-      : admin_(c.admin()), stats_scope_(stats_scope), cluster_manager_(c.clusterManager()),
-        local_info_(c.localInfo()), dispatcher_(c.dispatcher()), runtime_(runtime),
+      : admin_(c.admin()), server_scope_(c.stats()), stats_scope_(stats_scope),
+        cluster_manager_(c.clusterManager()), local_info_(c.localInfo()),
+        dispatcher_(c.mainThreadDispatcher()), runtime_(runtime),
         singleton_manager_(c.singletonManager()), tls_(c.threadLocal()), api_(c.api()),
         options_(c.options()), message_validation_visitor_(c.messageValidationVisitor()) {}
 
   Upstream::ClusterManager& clusterManager() override { return cluster_manager_; }
-  Event::Dispatcher& dispatcher() override { return dispatcher_; }
+  Event::Dispatcher& mainThreadDispatcher() override { return dispatcher_; }
   const Server::Options& options() override { return options_; }
   const LocalInfo::LocalInfo& localInfo() const override { return local_info_; }
   Envoy::Runtime::Loader& runtime() override { return runtime_; }
   Stats::Scope& scope() override { return stats_scope_; }
+  Stats::Scope& serverScope() override { return server_scope_; }
   Singleton::Manager& singletonManager() override { return singleton_manager_; }
   ThreadLocal::SlotAllocator& threadLocal() override { return tls_; }
   Server::Admin& admin() override { return admin_; }
@@ -719,6 +721,7 @@ public:
 
 private:
   Server::Admin& admin_;
+  Stats::Scope& server_scope_;
   Stats::Scope& stats_scope_;
   Upstream::ClusterManager& cluster_manager_;
   const LocalInfo::LocalInfo& local_info_;
@@ -918,6 +921,16 @@ ClusterInfoImpl::ClusterInfoImpl(
     idle_timeout_ = std::chrono::hours(1);
   }
 
+  if (http_protocol_options_->common_http_protocol_options_.has_max_connection_duration()) {
+    max_connection_duration_ = std::chrono::milliseconds(DurationUtil::durationToMilliseconds(
+        http_protocol_options_->common_http_protocol_options_.max_connection_duration()));
+    if (max_connection_duration_.value().count() == 0) {
+      max_connection_duration_ = absl::nullopt;
+    }
+  } else {
+    max_connection_duration_ = absl::nullopt;
+  }
+
   if (config.has_eds_cluster_config()) {
     if (config.type() != envoy::config::cluster::v3::Cluster::EDS) {
       throw EnvoyException("eds_cluster_config set in a non-EDS cluster");
@@ -1017,14 +1030,14 @@ ClusterImplBase::ClusterImplBase(
       local_cluster_(factory_context.clusterManager().localClusterName().value_or("") ==
                      cluster.name()),
       const_metadata_shared_pool_(Config::Metadata::getConstMetadataSharedPool(
-          factory_context.singletonManager(), factory_context.dispatcher())) {
+          factory_context.singletonManager(), factory_context.mainThreadDispatcher())) {
   factory_context.setInitManager(init_manager_);
   auto socket_factory = createTransportSocketFactory(cluster, factory_context);
   auto* raw_factory_pointer = socket_factory.get();
 
   auto socket_matcher = std::make_unique<TransportSocketMatcherImpl>(
       cluster.transport_socket_matches(), factory_context, socket_factory, *stats_scope);
-  auto& dispatcher = factory_context.dispatcher();
+  auto& dispatcher = factory_context.mainThreadDispatcher();
   info_ = std::shared_ptr<const ClusterInfoImpl>(
       new ClusterInfoImpl(cluster, factory_context.clusterManager().bindConfig(), runtime,
                           std::move(socket_matcher), std::move(stats_scope), added_via_api,
@@ -1084,9 +1097,7 @@ namespace {
 
 bool excludeBasedOnHealthFlag(const Host& host) {
   return host.healthFlagGet(Host::HealthFlag::PENDING_ACTIVE_HC) ||
-         (host.healthFlagGet(Host::HealthFlag::EXCLUDED_VIA_IMMEDIATE_HC_FAIL) &&
-          Runtime::runtimeFeatureEnabled(
-              "envoy.reloadable_features.health_check.immediate_failure_exclude_from_cluster"));
+         host.healthFlagGet(Host::HealthFlag::EXCLUDED_VIA_IMMEDIATE_HC_FAIL);
 }
 
 } // namespace
@@ -1604,14 +1615,11 @@ bool BaseDynamicClusterImpl::updateDynamicHostList(
       }
       if (existing_host->second->weight() != host->weight()) {
         existing_host->second->weight(host->weight());
-        if (Runtime::runtimeFeatureEnabled(
-                "envoy.reloadable_features.upstream_host_weight_change_causes_rebuild")) {
-          // We do full host set rebuilds so that load balancers can do pre-computation of data
-          // structures based on host weight. This may become a performance problem in certain
-          // deployments so it is runtime feature guarded and may also need to be configurable
-          // and/or dynamic in the future.
-          hosts_changed = true;
-        }
+        // We do full host set rebuilds so that load balancers can do pre-computation of data
+        // structures based on host weight. This may become a performance problem in certain
+        // deployments so it is runtime feature guarded and may also need to be configurable
+        // and/or dynamic in the future.
+        hosts_changed = true;
       }
 
       hosts_changed |=
@@ -1767,6 +1775,8 @@ getDnsLookupFamilyFromEnum(envoy::config::cluster::v3::Cluster::DnsLookupFamily 
     return Network::DnsLookupFamily::V4Only;
   case envoy::config::cluster::v3::Cluster::AUTO:
     return Network::DnsLookupFamily::Auto;
+  case envoy::config::cluster::v3::Cluster::V4_PREFERRED:
+    return Network::DnsLookupFamily::V4Preferred;
   default:
     NOT_REACHED_GCOVR_EXCL_LINE;
   }

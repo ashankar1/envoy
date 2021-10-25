@@ -13,8 +13,8 @@ namespace RBAC {
 
 RoleBasedAccessControlEngineImpl::RoleBasedAccessControlEngineImpl(
     const envoy::config::rbac::v3::RBAC& rules,
-    const envoy::config::rbac::v3::RBAC& custom_vocab_config,
-    const EnforcementMode mode)
+        const envoy::config::rbac::v3::RBAC& custom_vocab_config,
+    ProtobufMessage::ValidationVisitor& validation_visitor, const EnforcementMode mode)
     : action_(rules.action()), mode_(mode) {
   // guard expression builder by presence of a condition in policies
 
@@ -30,7 +30,8 @@ RoleBasedAccessControlEngineImpl::RoleBasedAccessControlEngineImpl(
   }
 
   for (const auto& policy : rules.policies()) {
-    policies_.emplace(policy.first, std::make_unique<PolicyMatcher>(policy.second, builder_.get()));
+    policies_.emplace(policy.first, std::make_unique<PolicyMatcher>(policy.second, builder_.get(),
+                                                                    validation_visitor));
   }
 }
 
