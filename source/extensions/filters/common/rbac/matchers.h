@@ -15,11 +15,15 @@
 #include "source/common/network/cidr_range.h"
 #include "source/extensions/filters/common/expr/evaluator.h"
 
+#include "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
+
 namespace Envoy {
 namespace Extensions {
 namespace Filters {
 namespace Common {
 namespace RBAC {
+
+using CustomVocabularyInterface = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyInterface;
 
 class Matcher;
 using MatcherConstSharedPtr = std::shared_ptr<const Matcher>;
@@ -220,6 +224,9 @@ public:
 
   bool matches(const Network::Connection& connection, const Envoy::Http::RequestHeaderMap& headers,
                const StreamInfo::StreamInfo&) const override;
+
+  bool matches(const Network::Connection& connection, const Envoy::Http::RequestHeaderMap& headers,
+               const StreamInfo::StreamInfo&, const CustomVocabularyInterface* custom_vocab_interface_) const;
 
 private:
   const OrMatcher permissions_;

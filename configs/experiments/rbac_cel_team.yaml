@@ -120,11 +120,16 @@ static_resources:
                         - call_expr:
                             function: constFunc2
                         - const_expr:
-                            int64_value: 98
+                            int64_value: 99
                     permissions:
                     - any: true
                     principals:
                     - any: true
+              custom_vocab_config:
+                config:
+                  name: envoy.filters.common.expr.custom_vocabulary
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.common.expr.custom_vocabulary.v3.CustomVocabularyInterfaceConfig
 #          - name: rbac-deny-if-team-is-swg
 #            typed_config:
 #              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC

@@ -8,6 +8,9 @@ import "udpa/annotations/status.proto";
 import "udpa/annotations/versioning.proto";
 import "validate/validate.proto";
 
+import "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.proto";
+
+
 option java_package = "io.envoyproxy.envoy.extensions.filters.network.rbac.v3";
 option java_outer_classname = "RbacProto";
 option java_multiple_files = true;
@@ -61,4 +64,7 @@ message RBAC {
   // every payload (e.g., Mongo, MySQL, Kafka) set the enforcement type to
   // CONTINUOUS to enforce RBAC policies on every message boundary.
   EnforcementType enforcement_type = 4;
+
+  //  extensions.filters.common.expr.custom_vocabulary.v3
+  envoy.extensions.filters.common.expr.custom_vocabulary.v3.CustomVocabularyInterfaceConfig custom_vocab_config = 6;
 }

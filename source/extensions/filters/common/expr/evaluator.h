@@ -13,6 +13,8 @@
 
 #include "source/extensions/filters/common/expr/custom_functions.h"
 
+#include "custom_vocabulary_interface.h"
+
 namespace Envoy {
 namespace Extensions {
 namespace Filters {
@@ -25,11 +27,10 @@ using Builder = google::api::expr::runtime::CelExpressionBuilder;
 using BuilderPtr = std::unique_ptr<Builder>;
 using Expression = google::api::expr::runtime::CelExpression;
 using ExpressionPtr = std::unique_ptr<Expression>;
-using CustomVocabularyWrapper = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyWrapper;
-using CelFunctionRegistry = google::api::expr::runtime::CelFunctionRegistry;
 using CelValue = google::api::expr::runtime::CelValue;
 using ConstCelFunction = Envoy::Extensions::Filters::Common::Expr::ConstCelFunction;
-
+using CustomVocabularyWrapper = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyWrapper;
+using CustomVocabularyInterface = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyInterface;
 // Thrown when there is an CEL library error.
 class CelException : public EnvoyException {
 public:

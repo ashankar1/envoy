@@ -1,9 +1,12 @@
 #include "source/extensions/filters/common/rbac/engine_impl.h"
 
 #include "envoy/config/rbac/v3/rbac.pb.h"
-#include "envoy/extensions/filters/http/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
+#include "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
 
 #include "source/common/http/header_map_impl.h"
+#include "source/common/config/utility.h"
+
+#include "source/extensions/filters/common/expr/custom_vocabulary_interface.h"
 
 namespace Envoy {
 namespace Extensions {
@@ -11,20 +14,39 @@ namespace Filters {
 namespace Common {
 namespace RBAC {
 
+using CustomVocabularyInterfaceConfig = envoy::extensions::filters::common::expr::custom_vocabulary::v3::CustomVocabularyInterfaceConfig;
+using CustomVocabularyInterfaceFactory = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyInterfaceFactory;
+
 RoleBasedAccessControlEngineImpl::RoleBasedAccessControlEngineImpl(
     const envoy::config::rbac::v3::RBAC& rules,
-        const envoy::config::rbac::v3::RBAC& custom_vocab_config,
-    ProtobufMessage::ValidationVisitor& validation_visitor, const EnforcementMode mode)
+    ProtobufMessage::ValidationVisitor& validation_visitor,
+    bool has_custom_vocab_config,
+    const CustomVocabularyInterfaceConfig& custom_vocab_config,
+    const EnforcementMode mode)
     : action_(rules.action()), mode_(mode) {
   // guard expression builder by presence of a condition in policies
 
-  auto& factory =
-      Config::Utility::getAndCheckFactory<CustomVocabularyInterfaceFactory>(custom_vocab_config.config());
-  custom_vocabulary_interface_ = factory.createInterface(custom_vocab_config);
+  std::cout << "********** RoleBasedAccessControlEngineImpl" << std::endl;
+  if (has_custom_vocab_config) {
+    std::cout << "********** has_custom_vocab_config" << std::endl;
+    auto& factory =
+        Envoy::Config::Utility::getAndCheckFactory<
+            CustomVocabularyInterfaceFactory>(custom_vocab_config.config());
+    custom_vocabulary_interface_ = factory.createInterface(custom_vocab_config);
+  } else {
+    std::cout << "********** no custom_vocab_config!" << std::endl;
+    custom_vocabulary_interface_ = nullptr;
+  }
 
   for (const auto& policy : rules.policies()) {
     if (policy.second.has_condition()) {
-      builder_ = Expr::createBuilder(&constant_arena_, custom_vocabulary_interface_);
+      if (custom_vocabulary_interface_) {
+        builder_ = Expr::createBuilder(&constant_arena_,
+                                       custom_vocabulary_interface_.get());
+      } else {
+        builder_ = Expr::createBuilder(&constant_arena_,
+                                       nullptr);
+      }
       break;
     }
   }
@@ -75,7 +97,8 @@ bool RoleBasedAccessControlEngineImpl::checkPolicyMatch(
   bool matched = false;
 
   for (const auto& policy : policies_) {
-    if (policy.second->matches(connection, headers, info, custom_vocabulary_interface_.get())) {
+    if (policy.second->matches(connection, headers, info,
+                               (custom_vocabulary_interface_) ? custom_vocabulary_interface_.get() : nullptr)) {
       matched = true;
       if (effective_policy_id != nullptr) {
         *effective_policy_id = policy.first;

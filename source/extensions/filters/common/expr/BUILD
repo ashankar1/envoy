@@ -109,10 +109,13 @@ envoy_cc_extension(
         ":context_lib",
         "//source/common/http:utility_lib",
         "//source/common/protobuf",
+        "@com_google_cel_cpp//eval/public:activation",
         "@com_google_cel_cpp//eval/public:builtin_func_registrar",
         "@com_google_cel_cpp//eval/public:cel_expr_builder_factory",
         "@com_google_cel_cpp//eval/public:cel_expression",
         "@com_google_cel_cpp//eval/public:cel_function",
         "@com_google_cel_cpp//eval/public:cel_value",
+        "@envoy_api//envoy/extensions/filters/common/expr/custom_vocabulary/v3:pkg_cc_proto",
+        "//envoy/registry",
     ],
 )

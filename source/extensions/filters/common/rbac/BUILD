@@ -16,6 +16,7 @@ envoy_cc_library(
         ":engine_lib",
         "//envoy/stats:stats_macros",
         "//source/common/singleton:const_singleton",
+        "@envoy_api//envoy/extensions/filters/common/expr/custom_vocabulary/v3:pkg_cc_proto",
     ],
 )
 
@@ -35,6 +36,7 @@ envoy_cc_library(
         "//source/common/config:utility_lib",
         "//source/common/http:header_utility_lib",
         "//source/common/network:cidr_range_lib",
+        "//source/extensions/filters/common/expr:custom_vocabulary_interface_lib",
         "//source/extensions/filters/common/expr:evaluator_lib",
         "@envoy_api//envoy/config/core/v3:pkg_cc_proto",
         "@envoy_api//envoy/config/rbac/v3:pkg_cc_proto",
@@ -58,8 +60,12 @@ envoy_cc_library(
     srcs = ["engine_impl.cc"],
     hdrs = ["engine_impl.h"],
     deps = [
+        "//source/common/config:utility_lib",
+        "//source/common/protobuf",
+        "//source/extensions/filters/common/expr:custom_vocabulary_interface_lib",
         "//source/extensions/filters/common/rbac:engine_interface",
         "//source/extensions/filters/common/rbac:matchers_lib",
         "@envoy_api//envoy/config/rbac/v3:pkg_cc_proto",
+        "@envoy_api//envoy/extensions/filters/common/expr/custom_vocabulary/v3:pkg_cc_proto",
     ],
 )

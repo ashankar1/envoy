@@ -1,7 +1,7 @@
 #pragma once
 
 #include "envoy/config/rbac/v3/rbac.pb.h"
-#include "envoy/extensions/filters/http/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
+#include "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
 
 #include "source/extensions/filters/common/rbac/engine.h"
 #include "source/extensions/filters/common/rbac/matchers.h"
@@ -23,6 +23,10 @@ public:
 };
 
 using DynamicMetadataKeysSingleton = ConstSingleton<DynamicMetadataKeys>;
+using CustomVocabularyWrapper = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyWrapper;
+using CustomVocabularyInterface = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyInterface;
+using CustomVocabularyInterfaceConfig = envoy::extensions::filters::common::expr::custom_vocabulary::v3::CustomVocabularyInterfaceConfig;
+
 
 enum class EnforcementMode { Enforced, Shadow };
 
@@ -30,7 +34,8 @@ class RoleBasedAccessControlEngineImpl : public RoleBasedAccessControlEngine, No
 public:
   RoleBasedAccessControlEngineImpl(const envoy::config::rbac::v3::RBAC& rules,
                                    ProtobufMessage::ValidationVisitor& validation_visitor,
-                                   const envoy::config::rbac::v3::RBAC& custom_vocab_config,
+                                   bool has_custom_vocab_config,
+                                   const CustomVocabularyInterfaceConfig& custom_vocab_config,
                                    const EnforcementMode mode = EnforcementMode::Enforced);
 
   bool handleAction(const Network::Connection& connection,
@@ -48,9 +53,11 @@ private:
 
   const envoy::config::rbac::v3::RBAC::Action action_;
   const EnforcementMode mode_;
+  const CustomVocabularyInterfaceConfig custom_vocab_interface_config_;
 
   std::map<std::string, std::unique_ptr<PolicyMatcher>> policies_;
   std::unique_ptr<CustomVocabularyInterface> custom_vocabulary_interface_;
+
 
   Protobuf::Arena constant_arena_;
   Expr::BuilderPtr builder_;

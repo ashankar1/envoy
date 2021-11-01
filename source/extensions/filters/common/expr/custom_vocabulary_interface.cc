@@ -1,4 +1,5 @@
 #include "source/extensions/filters/common/expr/custom_vocabulary_interface.h"
+#include "envoy/registry/registry.h"
 
 namespace Envoy {
 namespace Extensions {
@@ -44,7 +45,7 @@ void CustomVocabularyInterface::RegisterFunctions(CelFunctionRegistry* registry)
   //lazy functions
   auto status = registry->RegisterLazyFunction(ConstCelFunction::CreateDescriptor("constFunc2"));
   if (!status.ok()) {
-    throw CelException(
+    throw EnvoyException(
         absl::StrCat("failed to register lazy functions: ", status.message()));
   }
   //eagerly evaluated functions
@@ -55,19 +56,18 @@ void CustomVocabularyInterface::RegisterFunctions(CelFunctionRegistry* registry)
           -> CelValue { return GetConstValue(arena, i); },
       registry);
   if (!status.ok()) {
-    throw CelException(
+    throw EnvoyException(
         absl::StrCat("failed to register eagerly evaluated functions: ", status.message()));
   }
 }
 
-CustomVocabularyInterfacePtr CustomVocabularyInterfaceFactory::createInterface(
-    const Protobuf::Message& config) {
+CustomVocabularyInterfacePtr CustomVocabularyInterfaceFactory::createInterface (const Protobuf::Message& config) {
 //  const auto& typed_config = MessageUtil::downcastAndValidate<
 //      const envoy::extensions::filters::http::custom_vocabulary::v3::CustomVocabularyInterfaceConfig&>(config);
   return std::make_unique<CustomVocabularyInterface>();
 }
 
-REGISTER_FACTORY(CustomVocabularyInterfaceFactory, Envoy::Config::TypedFactory);
+REGISTER_FACTORY(CustomVocabularyInterfaceFactory, CustomVocabularyInterfaceBaseFactory);
 
 } // namespace Expr
 } // namespace Common

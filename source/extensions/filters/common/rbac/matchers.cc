@@ -12,6 +12,8 @@ namespace Filters {
 namespace Common {
 namespace RBAC {
 
+using CustomVocabularyInterface = Envoy::Extensions::Filters::Common::Expr::CustomVocabularyInterface;
+
 MatcherConstSharedPtr Matcher::create(const envoy::config::rbac::v3::Permission& permission,
                                       ProtobufMessage::ValidationVisitor& validation_visitor) {
   switch (permission.rule_case()) {
@@ -238,7 +240,16 @@ bool PolicyMatcher::matches(const Network::Connection& connection,
                             const StreamInfo::StreamInfo& info) const {
   return permissions_.matches(connection, headers, info) &&
          principals_.matches(connection, headers, info) &&
-         (expr_ == nullptr ? true : Expr::matches(*expr_, info, headers));
+         (expr_ == nullptr ? true : Expr::matches(*expr_, info, headers, nullptr));
+}
+
+bool PolicyMatcher::matches(const Network::Connection& connection,
+                            const Envoy::Http::RequestHeaderMap& headers,
+                            const StreamInfo::StreamInfo& info,
+                            const CustomVocabularyInterface* custom_vocab_interface_) const {
+  return permissions_.matches(connection, headers, info) &&
+         principals_.matches(connection, headers, info) &&
+         (expr_ == nullptr ? true : Expr::matches(*expr_, info, headers, custom_vocab_interface_));
 }
 
 bool RequestedServerNameMatcher::matches(const Network::Connection& connection,

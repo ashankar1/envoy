@@ -38,7 +38,7 @@ message RBAC {
   string shadow_rules_stat_prefix = 3;
 
 //  extensions.filters.common.expr.custom_vocabulary.v3
-  custom_vocabulary.v3.CustomVocabularyInterfaceConfig custom_vocab_config = 4;
+  envoy.extensions.filters.common.expr.custom_vocabulary.v3.CustomVocabularyInterfaceConfig custom_vocab_config = 4;
 }
 
 message RBACPerRoute {
