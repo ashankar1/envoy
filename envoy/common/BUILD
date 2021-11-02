@@ -104,3 +104,11 @@ envoy_cc_library(
     name = "hashable_interface",
     hdrs = ["hashable.h"],
 )
+
+envoy_cc_library(
+    name = "custom_vocabulary_interface",
+    hdrs = ["custom_vocabulary_interface.h"],
+    deps = [
+        "//envoy/registry",
+    ],
+)

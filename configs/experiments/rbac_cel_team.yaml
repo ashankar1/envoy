@@ -120,7 +120,7 @@ static_resources:
                         - call_expr:
                             function: constFunc2
                         - const_expr:
-                            int64_value: 99
+                            int64_value: 98
                     permissions:
                     - any: true
                     principals:
