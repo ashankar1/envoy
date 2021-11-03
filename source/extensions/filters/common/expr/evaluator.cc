@@ -24,7 +24,6 @@ ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamI
   auto activation = std::make_unique<Activation>();
 
   std::cout << "*************** createActivation" << std::endl;
-
   if (custom_vocabulary_interface) {
     std::cout << "*************** createActivation: has custom_vocabulary_interface" << std::endl;
     custom_vocabulary_interface->FillActivation(activation.get(), arena, info);
@@ -42,7 +41,6 @@ ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamI
                                   std::make_unique<MetadataProducer>(info.dynamicMetadata()));
   activation->InsertValueProducer(FilterState,
                                   std::make_unique<FilterStateWrapper>(info.filterState()));
-
 
   return activation;
 }
@@ -101,7 +99,10 @@ absl::optional<CelValue> evaluate(const Expression& expr, Protobuf::Arena& arena
                                   const Http::ResponseHeaderMap* response_headers,
                                   const Http::ResponseTrailerMap* response_trailers,
                                   const CustomVocabularyInterface* custom_vocabulary_interface) {
-    std::cout << "*************** evaluate" << std::endl;
+  std::cout << "*************** evaluate" << std::endl;
+  if (custom_vocabulary_interface) {
+    std::cout << "*************** evaluate custom_vocabulary_interface" << std::endl;
+  }
   auto activation =
       createActivation(arena, info, request_headers, response_headers, response_trailers, custom_vocabulary_interface);
   auto eval_status = expr.Evaluate(*activation, &arena);
@@ -118,9 +119,11 @@ bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
   std::cout << "*************** matches no custom vocab interface" << std::endl;
   auto eval_status = Expr::evaluate(expr, arena, info, &headers, nullptr, nullptr, nullptr);
   if (!eval_status.has_value()) {
+    std::cout << "*************** matches returning false" << std::endl;
     return false;
   }
   auto result = eval_status.value();
+  std::cout << "*************** matches returning " << print(result) << std::endl;
   return result.IsBool() ? result.BoolOrDie() : false;
 }
 
@@ -131,9 +134,11 @@ bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
   std::cout << "*************** matches - custom vocab interface" << std::endl;
   auto eval_status = Expr::evaluate(expr, arena, info, &headers, nullptr, nullptr, custom_vocabulary_interface);
   if (!eval_status.has_value()) {
+    std::cout << "*************** matches - returning false " << std::endl;
     return false;
   }
   auto result = eval_status.value();
+  std::cout << "*************** matches returning" << print(result) << std::endl;
   return result.IsBool() ? result.BoolOrDie() : false;
 }
 

@@ -8,6 +8,9 @@
 
 #include "source/extensions/filters/common/expr/custom_vocabulary_interface.h"
 
+#include "envoy/protobuf/message_validator.h"
+
+
 namespace Envoy {
 namespace Extensions {
 namespace Filters {
@@ -32,7 +35,7 @@ RoleBasedAccessControlEngineImpl::RoleBasedAccessControlEngineImpl(
     auto& factory =
         Envoy::Config::Utility::getAndCheckFactory<
             CustomVocabularyInterfaceFactory>(custom_vocab_config.config());
-    custom_vocabulary_interface_ = factory.createInterface(custom_vocab_config);
+    custom_vocabulary_interface_ = factory.createInterface(custom_vocab_config, validation_visitor);
   } else {
     std::cout << "********** no custom_vocab_config!" << std::endl;
     custom_vocabulary_interface_ = nullptr;

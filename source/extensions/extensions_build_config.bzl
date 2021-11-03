@@ -271,7 +271,7 @@ EXTENSIONS = {
     #
     # custom vocabulary
     #
-    "envoy.filters.common.expr.custom_vocabulary": "//source/extensions/filters/common/expr:custom_vocabulary_interface_lib",
+    "envoy.expr.custom_vocabulary.swg": "//source/extensions/filters/common/expr:custom_vocabulary_interface_lib",
 
     #
     # RBAC matchers

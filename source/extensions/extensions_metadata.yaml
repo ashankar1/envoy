@@ -725,8 +725,8 @@ envoy.rbac.matchers.upstream_ip_port:
   - envoy.rbac.matchers
   security_posture: unknown
   status: alpha
-envoy.filters.common.expr.custom_vocabulary:
+envoy.expr.custom_vocabulary.swg:
   categories:
-  - envoy.filters.common.expr.custom_vocabulary
-  security_posture: data_plane_agnostic
+  - envoy.expr.custom_vocabulary
+  security_posture: unknown
   status: alpha

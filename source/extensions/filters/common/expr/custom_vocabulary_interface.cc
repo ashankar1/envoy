@@ -61,13 +61,23 @@ void CustomVocabularyInterface::RegisterFunctions(CelFunctionRegistry* registry)
   }
 }
 
-CustomVocabularyInterfacePtr CustomVocabularyInterfaceFactory::createInterface (const Protobuf::Message& config) {
+CustomVocabularyInterfacePtr SwgCustomVocabularyInterfaceFactory::createInterface(
+      const Protobuf::Message& config, ProtobufMessage::ValidationVisitor& validation_visitor) {
 //  const auto& typed_config = MessageUtil::downcastAndValidate<
-//      const envoy::extensions::filters::http::custom_vocabulary::v3::CustomVocabularyInterfaceConfig&>(config);
+//      const CustomVocabularyInterfaceConfig&>(config, validation_visitor);
+//  const auto swg_config = MessageUtil::anyConvertAndValidate<
+//      SwgCustomVocabularyInterfaceConfig>(
+//      typed_config.config().typed_config(), validation_visitor);
+//  bool replace_default_vocab = swg_config.replace_default_vocab();
+//  if (replace_default_vocab) {
+//    std::cout << "********************* replace_default_vocab is true" << std::endl;
+//  } else {
+//    std::cout << "********************* replace_default_vocab is false" << std::endl;
+//  }
   return std::make_unique<CustomVocabularyInterface>();
 }
 
-REGISTER_FACTORY(CustomVocabularyInterfaceFactory, CustomVocabularyInterfaceBaseFactory);
+REGISTER_FACTORY(SwgCustomVocabularyInterfaceFactory, CustomVocabularyInterfaceFactory);
 
 } // namespace Expr
 } // namespace Common

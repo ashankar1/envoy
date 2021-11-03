@@ -105,8 +105,9 @@ envoy_cc_extension(
         "-Wno-unused-parameter",
     ],
     deps = [
-        ":custom_functions_lib",
         ":context_lib",
+        ":custom_functions_lib",
+        "//envoy/registry",
         "//source/common/http:utility_lib",
         "//source/common/protobuf",
         "@com_google_cel_cpp//eval/public:activation",
@@ -115,7 +116,7 @@ envoy_cc_extension(
         "@com_google_cel_cpp//eval/public:cel_expression",
         "@com_google_cel_cpp//eval/public:cel_function",
         "@com_google_cel_cpp//eval/public:cel_value",
+        "@envoy_api//envoy/extensions/filters/common/expr/custom_vocabulary/swg/v3:pkg_cc_proto",
         "@envoy_api//envoy/extensions/filters/common/expr/custom_vocabulary/v3:pkg_cc_proto",
-        "//envoy/registry",
     ],
 )
