@@ -33,32 +33,6 @@ static_resources:
                 route:
                   cluster: admin_cluster
           http_filters:
-#          - name: rbac-deny-if-header-team-is-swg
-#            typed_config:
-#              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-#              rules:
-#                action: DENY
-#                policies:
-#                  "policy-rbac-deny-if-header-peach-is-null":
-#                    # deny if request.headers[peach].equals("")
-#                    condition:
-#                      call_expr:
-#                        function: _==_
-#                        args:
-#                        - select_expr:
-#                            operand:
-#                              select_expr:
-#                                operand:
-#                                  ident_expr:
-#                                    name: request
-#                                field: headers
-#                            field: team
-#                        - const_expr:
-#                            string_value: swg
-#                    permissions:
-#                    - any: true
-#                    principals:
-#                    - any: true
           - name: rbac-deny-if-custom-team-is-swg
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
@@ -78,6 +52,20 @@ static_resources:
                             field: team
                         - const_expr:
                             string_value: swg
+                    permissions:
+                    - any: true
+                    principals:
+                    - any: true
+                  "policy-rbac-deny-if-lazy-func-returns-99":
+                    # deny if LazyConstFuncReturns99() == 99
+                    condition:
+                      call_expr:
+                        function: _==_
+                        args:
+                        - call_expr:
+                            function: LazyConstFuncReturns99
+                        - const_expr:
+                            int64_value: 99
                     permissions:
                     - any: true
                     principals:
