@@ -29,15 +29,12 @@ RoleBasedAccessControlEngineImpl::RoleBasedAccessControlEngineImpl(
     : action_(rules.action()), mode_(mode) {
   // guard expression builder by presence of a condition in policies
 
-  std::cout << "********** RoleBasedAccessControlEngineImpl" << std::endl;
   if (has_custom_vocab_config) {
-    std::cout << "********** has_custom_vocab_config" << std::endl;
     auto& factory =
         Envoy::Config::Utility::getAndCheckFactory<
             CustomVocabularyInterfaceFactory>(custom_vocab_config.config());
     custom_vocabulary_interface_ = factory.createInterface(custom_vocab_config, validation_visitor);
   } else {
-    std::cout << "********** no custom_vocab_config!" << std::endl;
     custom_vocabulary_interface_ = nullptr;
   }
 

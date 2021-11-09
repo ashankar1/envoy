@@ -13,13 +13,11 @@ absl::optional<CelValue> CustomVocabularyWrapper::operator[](CelValue key) const
   }
   auto value = key.StringOrDie().value();
   if (value == "team") {
-    std::cout << "********* custom[team] = swg" << std::endl;
     return CelValue::CreateStringView("swg");
   } else if (value == "ip") {
     std::cout << "custom vocabulary ip!" << std::endl;
     auto upstream_local_address = info_.upstreamLocalAddress();
     if (upstream_local_address != nullptr) {
-      std::cout << "upstream_local_address: " << upstream_local_address->asStringView() << std::endl;
       return CelValue::CreateStringView(upstream_local_address->asStringView());
     } else {
       std::cout << "upstream_local_address is null" << std::endl;

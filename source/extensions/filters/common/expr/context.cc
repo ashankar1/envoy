@@ -16,8 +16,6 @@ namespace Expr {
 
 Http::RegisterCustomInlineHeader<Http::CustomInlineHeaderRegistry::Type::RequestHeaders>
     referer_handle(Http::CustomHeaders::get().Referer);
-Http::RegisterCustomInlineHeader<Http::CustomInlineHeaderRegistry::Type::RequestHeaders>
-    mango_handle(Http::CustomHeaders::get().Mango);
 
 absl::optional<CelValue> convertHeaderEntry(const Http::HeaderEntry* header) {
   if (header == nullptr) {
@@ -131,18 +129,7 @@ absl::optional<CelValue> RequestWrapper::operator[](CelValue key) const {
       return convertHeaderEntry(headers_.value_->RequestId());
     } else if (value == UserAgent) {
       return convertHeaderEntry(headers_.value_->UserAgent());
-    } else if (value == Peach) {
-      std::cerr << "request header peach" << std::endl;
-      return convertHeaderEntry(headers_.value_->Peach());
-    } else if (value == Mango) {
-      return convertHeaderEntry(headers_.value_->getInline(mango_handle.handle()));
     }
-
-//    else if (value == "team") {
-//      std::string name("swg");
-//      std::cout << "***************** request header team: swg" << std::endl;
-//      return CelValue::CreateString(&name);
-//    }
   }
   return {};
 }
@@ -186,10 +173,7 @@ absl::optional<CelValue> ResponseWrapper::operator[](CelValue key) const {
     }
     return {};
   }
-//  else if (value == Grapefruit) {
-//    std::cout << "response header grapefruit, value is ruby" << std::endl;
-//    return CelValue::CreateString(reinterpret_cast<const std::string*>("ruby"));
-//  }
+
   return {};
 }
 

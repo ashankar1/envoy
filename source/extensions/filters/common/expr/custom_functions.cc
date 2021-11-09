@@ -12,14 +12,12 @@ absl::Status ConstCelFunction::Evaluate(absl::Span<const CelValue> args,
   args.size();
   arena->SpaceUsed();
   *output = CelValue::CreateInt64(99);
-  std::cout << "******** ConstCelFunction Lazy" << std::endl;
   return absl::OkStatus();
 }
 
 CelValue GetConstValue(Protobuf::Arena* arena, int64_t i) {
   i++;
   arena->SpaceUsed();
-  std::cout << "********* GetConstValue Eager" << std::endl;
   return CelValue::CreateInt64(99);
 }
 

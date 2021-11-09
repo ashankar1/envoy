@@ -23,9 +23,7 @@ ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamI
                                ) {
   auto activation = std::make_unique<Activation>();
 
-  std::cout << "*************** createActivation" << std::endl;
   if (custom_vocabulary_interface) {
-    std::cout << "*************** createActivation: has custom_vocabulary_interface" << std::endl;
     custom_vocabulary_interface->FillActivation(activation.get(), arena, info);
   }
 
@@ -70,14 +68,11 @@ BuilderPtr createBuilder(Protobuf::Arena* arena, const CustomVocabularyInterface
         absl::StrCat("failed to register built-in functions: ", register_status.message()));
   }
 
-  std::cout << "*************** createBuilder" << std::endl;
 
   if (custom_vocabulary_interface) {
-    std::cout << "*************** createBuilder: has custom_vocabulary_interface" << std::endl;
     custom_vocabulary_interface->RegisterFunctions(builder->GetRegistry());
   }
 
-  std::cout << "*************** createBuilder" << std::endl;
   return builder;
 }
 
@@ -88,7 +83,6 @@ ExpressionPtr createExpression(Builder& builder, const google::api::expr::v1alph
     throw CelException(
         absl::StrCat("failed to create an expression: ", cel_expression_status.status().message()));
   }
-  std::cout << "*************** createExpression" << std::endl;
 
   return std::move(cel_expression_status.value());
 }
@@ -99,33 +93,25 @@ absl::optional<CelValue> evaluate(const Expression& expr, Protobuf::Arena& arena
                                   const Http::ResponseHeaderMap* response_headers,
                                   const Http::ResponseTrailerMap* response_trailers,
                                   const CustomVocabularyInterface* custom_vocabulary_interface) {
-  std::cout << "*************** evaluate" << std::endl;
-  if (custom_vocabulary_interface) {
-    std::cout << "*************** evaluate custom_vocabulary_interface" << std::endl;
-  }
+
   auto activation =
       createActivation(arena, info, request_headers, response_headers, response_trailers, custom_vocabulary_interface);
   auto eval_status = expr.Evaluate(*activation, &arena);
   if (!eval_status.ok()) {
-    std::cout << "*************** evaluate !eval_status.ok() returning {} " << std::endl;
     return {};
   }
 
-  std::cout << "*************** evaluate returning " << print(eval_status.value()) << std::endl;
   return eval_status.value();
 }
 
 bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
              const Http::RequestHeaderMap& headers) {
   Protobuf::Arena arena;
-  std::cout << "*************** matches no custom vocab interface" << std::endl;
   auto eval_status = Expr::evaluate(expr, arena, info, &headers, nullptr, nullptr, nullptr);
   if (!eval_status.has_value()) {
-    std::cout << "*************** matches !eval_status.has_value() returning false" << std::endl;
     return false;
   }
   auto result = eval_status.value();
-  std::cout << "*************** matches returning " << print(result) << std::endl;
   return result.IsBool() ? result.BoolOrDie() : false;
 }
 
@@ -133,14 +119,11 @@ bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
              const Http::RequestHeaderMap& headers,
              const CustomVocabularyInterface* custom_vocabulary_interface) {
   Protobuf::Arena arena;
-  std::cout << "*************** matches - custom vocab interface" << std::endl;
   auto eval_status = Expr::evaluate(expr, arena, info, &headers, nullptr, nullptr, custom_vocabulary_interface);
   if (!eval_status.has_value()) {
-    std::cout << "*************** !eval_status.has_value() - matches - returning false " << std::endl;
     return false;
   }
   auto result = eval_status.value();
-  std::cout << "*************** matches returning " << print(result) << std::endl;
   return result.IsBool() ? result.BoolOrDie() : false;
 }
 
