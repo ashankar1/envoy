@@ -136,11 +136,13 @@ absl::optional<CelValue> RequestWrapper::operator[](CelValue key) const {
       return convertHeaderEntry(headers_.value_->Peach());
     } else if (value == Mango) {
       return convertHeaderEntry(headers_.value_->getInline(mango_handle.handle()));
-    } else if (value == "team") {
-      std::string name("swg");
-      std::cout << "request header team: swg" << std::endl;
-      return CelValue::CreateString(&name);
     }
+
+//    else if (value == "team") {
+//      std::string name("swg");
+//      std::cout << "***************** request header team: swg" << std::endl;
+//      return CelValue::CreateString(&name);
+//    }
   }
   return {};
 }

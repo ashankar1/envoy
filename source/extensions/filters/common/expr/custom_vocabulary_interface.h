@@ -17,7 +17,8 @@
 
 #include "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.pb.h"
 #include "envoy/extensions/filters/common/expr/custom_vocabulary/swg/v3/swg.pb.h"
-
+#include "envoy/extensions/filters/common/expr/custom_vocabulary/v3/custom_vocabulary_interface.pb.validate.h"
+#include "envoy/extensions/filters/common/expr/custom_vocabulary/swg/v3/swg.pb.validate.h"
 #include "envoy/protobuf/message_validator.h"
 
 

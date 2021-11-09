@@ -158,6 +158,7 @@ EXTENSIONS = {
     # Thrift filters
     #
     "envoy.filters.thrift.router": "//source/extensions/filters/network/thrift_proxy/router:config",
+    "envoy.filters.thrift.header_to_metadata": "//source/extensions/filters/network/thrift_proxy/filters/header_to_metadata:config",
     "envoy.filters.thrift.ratelimit": "//source/extensions/filters/network/thrift_proxy/filters/ratelimit:config",
 
     #
@@ -269,14 +270,14 @@ EXTENSIONS = {
     "envoy.key_value.file_based": "//source/extensions/key_value/file_based:config_lib",
 
     #
-    # custom vocabulary
-    #
-    "envoy.expr.custom_vocabulary.swg": "//source/extensions/filters/common/expr:custom_vocabulary_interface_lib",
-
-    #
     # RBAC matchers
     #
     "envoy.rbac.matchers.upstream_ip_port": "//source/extensions/filters/common/rbac/matchers:upstream_ip_port_lib",
+
+    #
+    # custom vocabulary
+    #
+    "envoy.expr.custom_vocabulary.swg": "//source/extensions/filters/common/expr:custom_vocabulary_interface_lib",
 
     #
     # DNS Resolver

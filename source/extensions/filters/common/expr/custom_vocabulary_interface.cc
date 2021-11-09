@@ -13,9 +13,8 @@ absl::optional<CelValue> CustomVocabularyWrapper::operator[](CelValue key) const
   }
   auto value = key.StringOrDie().value();
   if (value == "team") {
-    std::string name("swg");
-    std::cout << "custom vocabulary team!  swg!" << std::endl;
-    return CelValue::CreateString(&name);
+    std::cout << "********* custom[team] = swg" << std::endl;
+    return CelValue::CreateStringView("swg");
   } else if (value == "ip") {
     std::cout << "custom vocabulary ip!" << std::endl;
     auto upstream_local_address = info_.upstreamLocalAddress();
@@ -37,13 +36,13 @@ void CustomVocabularyInterface::FillActivation(Activation *activation, Protobuf:
   activation->InsertValueProducer("custom",
                                       std::make_unique<CustomVocabularyWrapper>(arena, info));
   //functions
-  auto func_name = absl::string_view("constFunc2");
+  auto func_name = absl::string_view("LazyConstFuncReturns99");
   absl::Status status = activation->InsertFunction(std::make_unique<ConstCelFunction>(func_name));
 }
 
 void CustomVocabularyInterface::RegisterFunctions(CelFunctionRegistry* registry) const {
   //lazy functions
-  auto status = registry->RegisterLazyFunction(ConstCelFunction::CreateDescriptor("constFunc2"));
+  auto status = registry->RegisterLazyFunction(ConstCelFunction::CreateDescriptor("LazyConstFuncReturns99"));
   if (!status.ok()) {
     throw EnvoyException(
         absl::StrCat("failed to register lazy functions: ", status.message()));
@@ -51,7 +50,7 @@ void CustomVocabularyInterface::RegisterFunctions(CelFunctionRegistry* registry)
   //eagerly evaluated functions
   status = google::api::expr::runtime::FunctionAdapter<CelValue, int64_t>::
   CreateAndRegister(
-      "constFunc", false,
+      "EagerConstFuncReturns99", false,
       [](Protobuf::Arena* arena, int64_t i)
           -> CelValue { return GetConstValue(arena, i); },
       registry);
@@ -63,17 +62,17 @@ void CustomVocabularyInterface::RegisterFunctions(CelFunctionRegistry* registry)
 
 CustomVocabularyInterfacePtr SwgCustomVocabularyInterfaceFactory::createInterface(
       const Protobuf::Message& config, ProtobufMessage::ValidationVisitor& validation_visitor) {
-//  const auto& typed_config = MessageUtil::downcastAndValidate<
-//      const CustomVocabularyInterfaceConfig&>(config, validation_visitor);
-//  const auto swg_config = MessageUtil::anyConvertAndValidate<
-//      SwgCustomVocabularyInterfaceConfig>(
-//      typed_config.config().typed_config(), validation_visitor);
-//  bool replace_default_vocab = swg_config.replace_default_vocab();
-//  if (replace_default_vocab) {
-//    std::cout << "********************* replace_default_vocab is true" << std::endl;
-//  } else {
-//    std::cout << "********************* replace_default_vocab is false" << std::endl;
-//  }
+  const auto& typed_config = MessageUtil::downcastAndValidate<
+      const CustomVocabularyInterfaceConfig&>(config, validation_visitor);
+  const auto swg_config = MessageUtil::anyConvertAndValidate<
+      SwgCustomVocabularyInterfaceConfig>(
+      typed_config.config().typed_config(), validation_visitor);
+  bool replace_default_vocab = swg_config.replace_default_vocab();
+  if (replace_default_vocab) {
+    std::cout << "********************* replace_default_vocab is true" << std::endl;
+  } else {
+    std::cout << "********************* replace_default_vocab is false" << std::endl;
+  }
   return std::make_unique<CustomVocabularyInterface>();
 }
 

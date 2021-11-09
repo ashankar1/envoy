@@ -87,38 +87,38 @@ static_resources:
 #                    - any: true
 #                    principals:
 #                    - any: true
-          - name: rbac-deny-if-header-server-name-is-envoy
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-              rules:
-                action: DENY
-                policies:
-                  "policy-deny-if-header-server-name-is-envoy":
-                    # deny if request.headers[server] == "envoy"
-                    condition:
-                      call_expr:
-                        function: contains
-                        args:
-                        - select_expr:
-                            operand:
-                              select_expr:
-                                operand:
-                                  ident_expr:
-                                    name: request
-                                field: headers
-                            field: server
-                        - const_expr:
-                            string_value: envoy
-                    permissions:
-                    - any: true
-                    principals:
-                    - any: true
-#          - name: rbac-deny-if-header-user-agent-is-chrome
+#          - name: rbac-deny-if-header-server-name-is-envoy
 #            typed_config:
 #              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
 #              rules:
 #                action: DENY
 #                policies:
+#                  "policy-deny-if-header-server-name-is-envoy":
+#                    # deny if request.headers[server] == "envoy"
+#                    condition:
+#                      call_expr:
+#                        function: contains
+#                        args:
+#                        - select_expr:
+#                            operand:
+#                              select_expr:
+#                                operand:
+#                                  ident_expr:
+#                                    name: request
+#                                field: headers
+#                            field: server
+#                        - const_expr:
+#                            string_value: envoy
+#                    permissions:
+#                    - any: true
+#                    principals:
+#                    - any: true
+          - name: rbac-deny-if-header-user-agent-is-chrome
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
+              rules:
+                action: DENY
+                policies:
 #                  "policy-deny-if-header-user-agent-is-chrome":
 #                    # deny if request.headers[user-agent].contains("Chrome")
 #                    condition:
@@ -139,29 +139,29 @@ static_resources:
 #                    - any: true
 #                    principals:
 #                    - any: true
-#          - name: rbac-deny-if-header-user-agent-is-curl
-#            typed_config:
-#              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-#              rules:
-#                action: DENY
-#                policies:
-#                  "policy-deny-if-header-user-agent-is-curl":
-#                    # deny if request.headers[user-agent] == "curl"
-#                    condition:
-#                      call_expr:
-#                        function: contains
-#                        args:
-#                        - select_expr:
-#                            operand:
-#                              ident_expr:
-#                                name: request
-#                            field: useragent
-#                        - const_expr:
-#                            string_value: curl
-#                    permissions:
-#                    - any: true
-#                    principals:
-#                    - any: true
+          - name: rbac-deny-if-header-user-agent-is-curl
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
+              rules:
+                action: DENY
+                policies:
+                  "policy-deny-if-header-user-agent-is-curl":
+                    # deny if request.headers[user-agent] == "curl"
+                    condition:
+                      call_expr:
+                        function: contains
+                        args:
+                        - select_expr:
+                            operand:
+                              ident_expr:
+                                name: request
+                            field: useragent
+                        - const_expr:
+                            string_value: curl
+                    permissions:
+                    - any: true
+                    principals:
+                    - any: true
           - name: envoy.filters.http.router
   clusters:
   - name: admin_cluster

@@ -107,9 +107,11 @@ absl::optional<CelValue> evaluate(const Expression& expr, Protobuf::Arena& arena
       createActivation(arena, info, request_headers, response_headers, response_trailers, custom_vocabulary_interface);
   auto eval_status = expr.Evaluate(*activation, &arena);
   if (!eval_status.ok()) {
+    std::cout << "*************** evaluate !eval_status.ok() returning {} " << std::endl;
     return {};
   }
 
+  std::cout << "*************** evaluate returning " << print(eval_status.value()) << std::endl;
   return eval_status.value();
 }
 
@@ -119,7 +121,7 @@ bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
   std::cout << "*************** matches no custom vocab interface" << std::endl;
   auto eval_status = Expr::evaluate(expr, arena, info, &headers, nullptr, nullptr, nullptr);
   if (!eval_status.has_value()) {
-    std::cout << "*************** matches returning false" << std::endl;
+    std::cout << "*************** matches !eval_status.has_value() returning false" << std::endl;
     return false;
   }
   auto result = eval_status.value();
@@ -134,11 +136,11 @@ bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
   std::cout << "*************** matches - custom vocab interface" << std::endl;
   auto eval_status = Expr::evaluate(expr, arena, info, &headers, nullptr, nullptr, custom_vocabulary_interface);
   if (!eval_status.has_value()) {
-    std::cout << "*************** matches - returning false " << std::endl;
+    std::cout << "*************** !eval_status.has_value() - matches - returning false " << std::endl;
     return false;
   }
   auto result = eval_status.value();
-  std::cout << "*************** matches returning" << print(result) << std::endl;
+  std::cout << "*************** matches returning " << print(result) << std::endl;
   return result.IsBool() ? result.BoolOrDie() : false;
 }
 
