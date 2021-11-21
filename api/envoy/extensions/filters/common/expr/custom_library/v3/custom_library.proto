@@ -10,9 +10,8 @@ option java_multiple_files = true;
 //option (udpa.annotations.file_status).work_in_progress = true;
 option (udpa.annotations.file_status).package_version_status = ACTIVE;
 
-// [#protodoc-title: Custom Library]
+// [#protodoc-title: RBAC CEL Extension for a Custom Library]
 
-// [#alpha:]
 // [#extension: envoy.expr.custom_library]
 message CustomLibraryConfig {
   bool replace_default_library_in_case_of_overlap = 1;
