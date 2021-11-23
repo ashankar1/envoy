@@ -30,21 +30,24 @@ using CustomLibraryConfig = envoy::extensions::rbac::custom_library_config::v3::
 
 class CustomLibrary {
 public:
-  void FillActivation(Activation* activation, Protobuf::Arena& arena,
+  CustomLibrary(const bool replace_default_library)
+      : replace_default_library_(replace_default_library) {}
+  void FillActivation(Activation* activation,
+                      Protobuf::Arena& arena,
                       const StreamInfo::StreamInfo& info,
                       const Http::RequestHeaderMap* request_headers,
                       const Http::ResponseHeaderMap* response_headers,
-                      const Http::ResponseTrailerMap* response_trailers) const;
+                      const Http::ResponseTrailerMap* response_trailers);
 
   void RegisterFunctions(CelFunctionRegistry* registry) const;
 
   bool replace_default_library() const { return replace_default_library_; }
-  void set_replace_default_library(bool replace_default_library) {
-    replace_default_library_ = replace_default_library;
-  }
 
 private:
-  bool replace_default_library_;
+  const bool replace_default_library_;
+  const Http::RequestHeaderMap* request_headers_;
+  const Http::ResponseHeaderMap* response_headers_;
+  const Http::ResponseTrailerMap* response_trailers_;
 };
 
 using CustomLibraryPtr = std::unique_ptr<CustomLibrary>;
@@ -56,9 +59,8 @@ public:
   ProtobufTypes::MessagePtr createEmptyConfigProto() override {
     return ProtobufTypes::MessagePtr{new CustomLibraryConfig()};
   }
-  virtual CustomLibraryPtr
-  createInterface(const Protobuf::Message& config,
-                  ProtobufMessage::ValidationVisitor& validation_visitor) PURE;
+  virtual CustomLibraryPtr createInterface(const Protobuf::Message& config,
+                                           ProtobufMessage::ValidationVisitor& validation_visitor) PURE;
 };
 
 class CustomLibraryFactory : public BaseCustomLibraryFactory {

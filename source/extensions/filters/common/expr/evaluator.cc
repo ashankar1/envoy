@@ -17,7 +17,7 @@ ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamI
                                const Http::RequestHeaderMap* request_headers,
                                const Http::ResponseHeaderMap* response_headers,
                                const Http::ResponseTrailerMap* response_trailers,
-                               const CustomLibrary* custom_library) {
+                               CustomLibrary* custom_library) {
   auto activation = std::make_unique<Activation>();
 
   if (custom_library && custom_library->replace_default_library()) {
@@ -93,7 +93,7 @@ absl::optional<CelValue> evaluate(const Expression& expr, Protobuf::Arena& arena
                                   const Http::RequestHeaderMap* request_headers,
                                   const Http::ResponseHeaderMap* response_headers,
                                   const Http::ResponseTrailerMap* response_trailers,
-                                  const CustomLibrary* custom_library) {
+                                  CustomLibrary* custom_library) {
   auto activation = createActivation(arena, info, request_headers, response_headers,
                                      response_trailers, custom_library);
   auto eval_status = expr.Evaluate(*activation, &arena);
@@ -110,7 +110,7 @@ bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
 }
 
 bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
-             const Http::RequestHeaderMap& headers, const CustomLibrary* custom_library) {
+             const Http::RequestHeaderMap& headers, CustomLibrary* custom_library) {
   Protobuf::Arena arena;
   auto eval_status = Expr::evaluate(expr, arena, info, &headers, nullptr, nullptr, custom_library);
   if (!eval_status.has_value()) {

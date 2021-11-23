@@ -24,11 +24,8 @@ envoy_cc_library(
     name = "custom_vocabulary_lib",
     srcs = ["custom_vocabulary.cc"],
     hdrs = ["custom_vocabulary.h"],
-    copts = [
-        "-Wno-unused-parameter",
-        "-Wno-unused-private-field",
-    ],
     deps = [
+        "//source/common/http:utility_lib",
         "//source/common/protobuf",
         "//source/extensions/filters/common/expr:context_lib",
         "@com_google_cel_cpp//eval/public:cel_value",
@@ -40,9 +37,6 @@ envoy_cc_extension(
     srcs = ["custom_library.cc"],
     hdrs = [
         "custom_library.h",
-    ],
-    copts = [
-        "-Wno-unused-parameter",
     ],
     deps = [
         ":custom_functions_lib",

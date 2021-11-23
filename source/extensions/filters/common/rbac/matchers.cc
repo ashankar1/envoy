@@ -244,7 +244,7 @@ bool PolicyMatcher::matches(const Network::Connection& connection,
 bool PolicyMatcher::matches(const Network::Connection& connection,
                             const Envoy::Http::RequestHeaderMap& headers,
                             const StreamInfo::StreamInfo& info,
-                            const CustomLibrary* custom_library) const {
+                            CustomLibrary* custom_library) const {
   return permissions_.matches(connection, headers, info) &&
          principals_.matches(connection, headers, info) &&
          (expr_ == nullptr ? true : Expr::matches(*expr_, info, headers, custom_library));

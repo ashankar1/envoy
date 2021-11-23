@@ -34,7 +34,7 @@ ActivationPtr createActivation(Protobuf::Arena& arena, const StreamInfo::StreamI
                                const Http::RequestHeaderMap* request_headers,
                                const Http::ResponseHeaderMap* response_headers,
                                const Http::ResponseTrailerMap* response_trailers,
-                               const CustomLibrary* custom_library);
+                               CustomLibrary* custom_library);
 
 // Creates an expression builder. The optional arena is used to enable constant folding
 // for intermediate evaluation results.
@@ -52,7 +52,7 @@ absl::optional<CelValue> evaluate(const Expression& expr, Protobuf::Arena& arena
                                   const Http::RequestHeaderMap* request_headers,
                                   const Http::ResponseHeaderMap* response_headers,
                                   const Http::ResponseTrailerMap* response_trailers,
-                                  const CustomLibrary* custom_library);
+                                  CustomLibrary* custom_library);
 
 // Evaluates an expression and returns true if the expression evaluates to "true".
 // Returns false if the expression fails to evaluate.
@@ -60,7 +60,7 @@ bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
              const Http::RequestHeaderMap& headers);
 
 bool matches(const Expression& expr, const StreamInfo::StreamInfo& info,
-             const Http::RequestHeaderMap& headers, const CustomLibrary* custom_library);
+             const Http::RequestHeaderMap& headers, CustomLibrary* custom_library);
 
 // Returns a string for a CelValue.
 std::string print(CelValue value);

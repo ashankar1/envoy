@@ -224,7 +224,7 @@ public:
                const StreamInfo::StreamInfo&) const override;
 
   bool matches(const Network::Connection& connection, const Envoy::Http::RequestHeaderMap& headers,
-               const StreamInfo::StreamInfo&, const CustomLibrary* custom_library) const;
+               const StreamInfo::StreamInfo&, CustomLibrary* custom_library) const;
 
 private:
   const OrMatcher permissions_;

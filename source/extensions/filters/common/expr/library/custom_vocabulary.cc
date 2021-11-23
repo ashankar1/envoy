@@ -1,4 +1,6 @@
 #include "source/extensions/filters/common/expr/library/custom_vocabulary.h"
+#include "source/common/http/utility.h"
+#include "source/common/protobuf/protobuf.h"
 
 namespace Envoy {
 namespace Extensions {
@@ -18,6 +20,10 @@ absl::optional<CelValue> CustomVocabularyWrapper::operator[](CelValue key) const
     auto upstream_local_address = info_.upstreamLocalAddress();
     if (upstream_local_address != nullptr) {
       return CelValue::CreateStringView(upstream_local_address->asStringView());
+    }
+  } else if (value == "protocol") {
+    if (info_.protocol().has_value()) {
+      return CelValue::CreateString(Protobuf::Arena::Create<std::string>(&arena_, Http::Utility::getProtocolString(info_.protocol().value())));
     }
   }
 
