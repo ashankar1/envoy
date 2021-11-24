@@ -22,31 +22,30 @@ void CustomLibrary::FillActivation(Activation* activation, Protobuf::Arena& aren
   response_headers_ = response_headers;
   response_trailers_ = response_trailers;
   // words
-  activation->InsertValueProducer("custom",
+  activation->InsertValueProducer(CustomVocabularyName,
                                   std::make_unique<CustomVocabularyWrapper>(arena,
                                                                             info,
                                                                             request_headers,
                                                                             response_headers,
                                                                             response_trailers));
   // functions
-  auto func_name = absl::string_view("LazyConstFuncReturns99");
   absl::Status status = activation->InsertFunction(
-      std::make_unique<ConstCelFunction>(func_name));
-
+      std::make_unique<GetDoubleCelFunction>(LazyEvalFuncGetDoubleName));
 }
 
 void CustomLibrary::RegisterFunctions(CelFunctionRegistry* registry) const {
-  // lazy functions
-  auto status =
-      registry->RegisterLazyFunction(ConstCelFunction::CreateDescriptor("LazyConstFuncReturns99"));
+  absl::Status status;
+  // lazily evaluated functions
+  status =
+      registry->RegisterLazyFunction(GetDoubleCelFunction::CreateDescriptor(LazyEvalFuncGetDoubleName));
   if (!status.ok()) {
     throw EnvoyException(absl::StrCat("failed to register lazy functions: ", status.message()));
   }
 
   // eagerly evaluated functions
   status = google::api::expr::runtime::FunctionAdapter<CelValue, int64_t>::CreateAndRegister(
-      "EagerConstFuncReturns99", false,
-      [](Protobuf::Arena* arena, int64_t i) -> CelValue { return GetConstValue(arena, i); },
+      EagerEvalFuncGetNextIntName, false,
+      [](Protobuf::Arena* arena, int64_t i) -> CelValue { return GetNextInt(arena, i); },
       registry);
   if (!status.ok()) {
     throw EnvoyException(
@@ -55,8 +54,8 @@ void CustomLibrary::RegisterFunctions(CelFunctionRegistry* registry) const {
 }
 
 CustomLibraryPtr
-CustomLibraryFactory::createInterface(const Protobuf::Message& config,
-                                      ProtobufMessage::ValidationVisitor& validation_visitor) {
+CustomLibraryFactory::createLibrary(const Protobuf::Message& config,
+                                    ProtobufMessage::ValidationVisitor& validation_visitor) {
   const auto& typed_config =
       MessageUtil::downcastAndValidate<const envoy::config::core::v3::TypedExtensionConfig&>(
           config, validation_visitor);

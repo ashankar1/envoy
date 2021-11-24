@@ -26,7 +26,8 @@ RoleBasedAccessControlEngineImpl::RoleBasedAccessControlEngineImpl(
   if (rules.has_custom_library_config()) {
     auto& factory = Envoy::Config::Utility::getAndCheckFactory<BaseCustomLibraryFactory>(
         rules.custom_library_config());
-    custom_library_ = factory.createInterface(rules.custom_library_config(), validation_visitor);
+    custom_library_ =
+        factory.createLibrary(rules.custom_library_config(), validation_visitor);
   } else {
     custom_library_ = nullptr;
   }

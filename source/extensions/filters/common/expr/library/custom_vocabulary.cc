@@ -23,7 +23,11 @@ absl::optional<CelValue> CustomVocabularyWrapper::operator[](CelValue key) const
     }
   } else if (value == "protocol") {
     if (info_.protocol().has_value()) {
-      return CelValue::CreateString(Protobuf::Arena::Create<std::string>(&arena_, Http::Utility::getProtocolString(info_.protocol().value())));
+      // creating string in this manner in order to use arena_
+      return CelValue::CreateString(
+          Protobuf::Arena::Create<std::string>(&arena_,
+                                               Http::Utility::getProtocolString(
+                                                   info_.protocol().value())));
     }
   }
 

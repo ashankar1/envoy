@@ -40,12 +40,12 @@ static_resources:
                     value: envoy
                   append: true
           http_filters:
-#          - name: rbac-deny-admin-clusters-endpoint
-#            typed_config:
-#              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-#              rules:
-#                action: DENY
-#                policies:
+          - name: rbac-filter
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
+              rules:
+                action: DENY
+                policies:
 #                  "deny-admin-clusters-endpoint-policy":
 #                    # deny if request.path.endsWith("/clusters")
 #                    condition:
@@ -63,12 +63,6 @@ static_resources:
 #                    - any: true
 #                    principals:
 #                    - any: true
-#          - name: rbac-deny-if-header-host-is-localhost
-#            typed_config:
-#              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-#              rules:
-#                action: DENY
-#                policies:
 #                  "policy-deny-if-header-host-is-localhost":
 #                    # deny if request.headers[host] == "localhost"
 #                    condition:
@@ -89,12 +83,6 @@ static_resources:
 #                    - any: true
 #                    principals:
 #                    - any: true
-#          - name: rbac-deny-if-header-server-name-is-envoy
-#            typed_config:
-#              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-#              rules:
-#                action: DENY
-#                policies:
 #                  "policy-deny-if-header-server-name-is-envoy":
 #                    # deny if request.headers[server] == "envoy"
 #                    condition:
@@ -115,12 +103,6 @@ static_resources:
 #                    - any: true
 #                    principals:
 #                    - any: true
-          - name: rbac-deny-if-header-user-agent-is-chrome
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-              rules:
-                action: DENY
-                policies:
 #                  "policy-deny-if-header-user-agent-is-chrome":
 #                    # deny if request.headers[user-agent].contains("Chrome")
 #                    condition:
@@ -141,12 +123,6 @@ static_resources:
 #                    - any: true
 #                    principals:
 #                    - any: true
-          - name: rbac-deny-if-header-user-agent-is-curl
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-              rules:
-                action: DENY
-                policies:
                   "policy-deny-if-header-user-agent-is-curl":
                     # deny if request.headers[user-agent] == "curl"
                     condition:

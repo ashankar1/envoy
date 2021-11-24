@@ -28,6 +28,10 @@ using Activation = google::api::expr::runtime::Activation;
 using CelFunctionRegistry = google::api::expr::runtime::CelFunctionRegistry;
 using CustomLibraryConfig = envoy::extensions::rbac::custom_library_config::v3::CustomLibraryConfig;
 
+constexpr absl::string_view CustomVocabularyName = "custom";
+constexpr absl::string_view LazyEvalFuncGetDoubleName = "GetDouble";
+constexpr absl::string_view EagerEvalFuncGetNextIntName = "GetNextInt";
+
 class CustomLibrary {
 public:
   CustomLibrary(const bool replace_default_library)
@@ -59,14 +63,14 @@ public:
   ProtobufTypes::MessagePtr createEmptyConfigProto() override {
     return ProtobufTypes::MessagePtr{new CustomLibraryConfig()};
   }
-  virtual CustomLibraryPtr createInterface(const Protobuf::Message& config,
-                                           ProtobufMessage::ValidationVisitor& validation_visitor) PURE;
+  virtual CustomLibraryPtr createLibrary(const Protobuf::Message& config,
+                                         ProtobufMessage::ValidationVisitor& validation_visitor) PURE;
 };
 
 class CustomLibraryFactory : public BaseCustomLibraryFactory {
 public:
-  CustomLibraryPtr createInterface(const Protobuf::Message& config,
-                                   ProtobufMessage::ValidationVisitor& validation_visitor) override;
+  CustomLibraryPtr createLibrary(const Protobuf::Message& config,
+                                 ProtobufMessage::ValidationVisitor& validation_visitor) override;
 
   std::string name() const override { return "envoy.rbac.custom_library_config.custom_library"; }
 };
